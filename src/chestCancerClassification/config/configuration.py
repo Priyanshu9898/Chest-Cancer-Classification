@@ -1,6 +1,8 @@
 from chestCancerClassification.constants import *
 from chestCancerClassification.utils.common import read_yaml, create_directories
 from chestCancerClassification.entity import DataIngestionConfig, PrepareBaseModelConfig, TrainingConfig
+import os
+
 class ConfigurationManager:
     def __init__(self, config_file_path = CONFIG_FILE_PATH, param_file_path = PARAMS_FILE_PATH) -> None:
        
@@ -49,3 +51,69 @@ class ConfigurationManager:
         )
 
         return prepare_base_model_config
+    
+    def get_training_config_vgg16(self) -> TrainingConfig:
+        config = self.config.training
+        params = self.param.VGG16
+        prepare_base_model = self.config.prepare_base_model
+        
+        training_data = os.path.join(self.config.data_ingestion.unzip_data, "train")
+        validation_data = os.path.join(self.config.data_ingestion.unzip_data, "valid")
+        test_data = os.path.join(self.config.data_ingestion.unzip_data, "test")
+      
+        
+        create_directories([
+            Path(config.root_dir),
+            Path(config.results_dir)
+        ])
+        
+        print("training_data", training_data)
+        
+        training_config = TrainingConfig(
+            root_dir=Path(config.root_dir),
+            trained_model_path=Path(config.trained_model_path_vgg16),
+            updated_base_model_path=Path(prepare_base_model.updated_base_model_vgg16),
+            training_data=Path(training_data),
+            validation_data=Path(validation_data),
+            test_data=Path(test_data),
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE,
+            results_folder=Path(config.results_dir)
+        )
+
+        return training_config
+    
+    def get_training_config_vgg19(self) -> TrainingConfig:
+        config = self.config.training
+        params = self.param.VGG19
+        prepare_base_model = self.config.prepare_base_model
+        
+        training_data = os.path.join(self.config.data_ingestion.unzip_data, "train")
+        validation_data = os.path.join(self.config.data_ingestion.unzip_data, "valid")
+        test_data = os.path.join(self.config.data_ingestion.unzip_data, "test")
+      
+        
+        create_directories([
+            Path(config.root_dir),
+            Path(config.results_dir)
+        ])
+        
+        # print("training_data", training_data)
+        
+        training_config = TrainingConfig(
+            root_dir=Path(config.root_dir),
+            trained_model_path=Path(config.trained_model_path_vgg19),
+            updated_base_model_path=Path(prepare_base_model.updated_base_model_vgg19),
+            training_data=Path(training_data),
+            validation_data=Path(validation_data),
+            test_data=Path(test_data),
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE,
+            results_folder=Path(config.results_dir)
+        )
+
+        return training_config
