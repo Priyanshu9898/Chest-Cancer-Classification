@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from chestCancerClassification import logger
 from sklearn.metrics import precision_recall_fscore_support
-
+import mlflow
 
 
 class Training:
@@ -86,19 +86,19 @@ class Training:
         plt.savefig(os.path.join(self.config.results_folder, f'{self.model_name}_training_history.png'))
         # plt.show()
 
-    def evaluate_and_report(self):
-        test_loss, test_accuracy = self.model.evaluate(self.test_generator)
-        print(f"Test Accuracy: {test_accuracy}, Test Loss: {test_loss}")
+    # def evaluate_and_report(self):
+    #     test_loss, test_accuracy = self.model.evaluate(self.test_generator)
+    #     print(f"Test Accuracy: {test_accuracy}, Test Loss: {test_loss}")
 
-        predictions = np.argmax(self.model.predict(self.test_generator), axis=1)
-        true_classes = self.test_generator.classes
-        class_labels = list(self.test_generator.class_indices.keys())
+    #     predictions = np.argmax(self.model.predict(self.test_generator), axis=1)
+    #     true_classes = self.test_generator.classes
+    #     class_labels = list(self.test_generator.class_indices.keys())
 
-        cm = confusion_matrix(true_classes, predictions)
-        self.plot_confusion_matrix(cm, class_labels)
+    #     cm = confusion_matrix(true_classes, predictions)
+    #     self.plot_confusion_matrix(cm, class_labels)
 
-        precision, recall, f1_score, _ = precision_recall_fscore_support(true_classes, predictions, average='weighted')
-        self.append_to_csv(test_accuracy, precision, recall, f1_score)
+    #     precision, recall, f1_score, _ = precision_recall_fscore_support(true_classes, predictions, average='weighted')
+    #     self.append_to_csv(test_accuracy, precision, recall, f1_score)
 
     def plot_confusion_matrix(self, cm, classes):
         plt.figure(figsize=(10, 10))
@@ -140,12 +140,46 @@ class Training:
         steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
         validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
 
-        history = self.model.fit(
-            self.train_generator, epochs=self.config.params_epochs, 
-            steps_per_epoch=steps_per_epoch, validation_data=self.valid_generator, 
-            validation_steps=validation_steps
-        )
+        with mlflow.start_run(run_name=self.model_name):
+            # Log parameters
+            mlflow.log_param("image_size", self.config.params_image_size)
+            mlflow.log_param("batch_size", self.config.params_batch_size)
+            mlflow.log_param("epochs", self.config.params_epochs)
 
-        self.save_model(path=self.config.trained_model_path, model=self.model)
-        self.plot_training_history(history)
-        self.evaluate_and_report()
+            # Train model
+            history = self.model.fit(
+                self.train_generator, epochs=self.config.params_epochs, 
+                steps_per_epoch=steps_per_epoch, validation_data=self.valid_generator, 
+                validation_steps=validation_steps
+            )
+
+            # Log training metrics
+            mlflow.log_metric("train_accuracy", max(history.history['accuracy']))
+            mlflow.log_metric("train_loss", min(history.history['loss']))
+
+            self.save_model(path=self.config.trained_model_path, model=self.model)
+            self.plot_training_history(history)
+
+            self.evaluate_and_report(history)
+
+    def evaluate_and_report(self, history):
+        test_loss, test_accuracy = self.model.evaluate(self.test_generator)
+        predictions = np.argmax(self.model.predict(self.test_generator), axis=1)
+        true_classes = self.test_generator.classes
+
+        precision, recall, f1_score, _ = precision_recall_fscore_support(true_classes, predictions, average='weighted')
+
+        # Log test metrics
+        mlflow.log_metric("test_accuracy", test_accuracy)
+        mlflow.log_metric("test_loss", test_loss)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("f1_score", f1_score)
+
+       
+        mlflow.keras.log_model(self.model, "model")
+
+        cm = confusion_matrix(true_classes, predictions)
+        self.plot_confusion_matrix(cm, list(self.test_generator.class_indices.keys()))
+
+        self.append_to_csv(test_accuracy, precision, recall, f1_score)
