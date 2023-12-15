@@ -6,3 +6,22 @@ data_ingestion:
   local_data_file: artifacts/data_ingestion/data.zip
   unzip_data: artifacts/data_ingestion
 
+prepare_base_model:
+  root_dir: artifacts/base_models
+  base_model_vgg16 : artifacts/base_models/vgg16.h5
+  updated_base_model_vgg16 : artifacts/base_models/updated_vgg16.h5
+  base_model_vgg19 : artifacts/base_models/vgg19.h5
+  updated_base_model_vgg19 : artifacts/base_models/updated_vgg19.h5
+  base_model_inceptionv3 : artifacts/base_models/inceptionv3.h5
+  updated_base_model_inceptionv3 : artifacts/base_models/updated_inceptionv3.h5
+  base_model_exception : artifacts/base_models/exception.h5
+  updated_base_model_exception : artifacts/base_models/updated_exception.h5
+
+training:
+  root_dir: artifacts/training
+  results_dir: results
+  trained_model_path_vgg16 : artifacts/training/vgg16.h5
+  trained_model_path_vgg19 : artifacts/training/vgg19.h5
+  trained_model_path_inceptionv3 : artifacts/training/inceptionv3.h5
+  trained_model_path_exception : artifacts/training/exception.h5
+

@@ -1,6 +1,6 @@
 from chestCancerClassification.constants import *
 from chestCancerClassification.utils.common import read_yaml, create_directories
-from chestCancerClassification.entity import DataIngestionConfig
+from chestCancerClassification.entity import DataIngestionConfig, PrepareBaseModelConfig, TrainingConfig
 class ConfigurationManager:
     def __init__(self, config_file_path = CONFIG_FILE_PATH, param_file_path = PARAMS_FILE_PATH) -> None:
        
@@ -23,4 +23,29 @@ class ConfigurationManager:
         
         return data_ingestion_config
 
-        
+    
+    def get_prepare_base_model_config(self) -> PrepareBaseModelConfig:
+        config = self.config.prepare_base_model
+
+        print(self.config.prepare_base_model)
+
+        create_directories([config.root_dir])
+
+        prepare_base_model_config = PrepareBaseModelConfig(
+            root_dir=Path(config.root_dir),
+            base_model_vgg16=Path(config.base_model_vgg16),
+            updated_base_model_vgg16=Path(config.updated_base_model_vgg16),
+            base_model_vgg19=Path(config.base_model_vgg19),
+            updated_base_model_vgg19=Path(config.updated_base_model_vgg19),
+            base_model_inceptionv3=Path(config.base_model_inceptionv3),
+            updated_base_model_inceptionv3=Path(
+                config.updated_base_model_inceptionv3),
+            base_model_exception=Path(config.base_model_exception),
+            updated_base_model_exception=Path(
+                config.updated_base_model_exception),
+            all_model_params=self.param,
+            params_classes= self.param.CLASSES,
+            params_learning_rate = self.param.LEARNING_RATE
+        )
+
+        return prepare_base_model_config

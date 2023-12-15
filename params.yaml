@@ -1,1 +1,45 @@
-key: val
+BATCH_SIZE: 32
+CLASSES: 4
+LEARNING_RATE: 0.01
+AUGMENTATION: True
+
+VGG16:
+  AUGMENTATION: True
+  IMAGE_SIZE: [224, 224, 3] # as per VGG 16 model
+  BATCH_SIZE: 32
+  INCLUDE_TOP: False
+  EPOCHS: 10
+  CLASSES: 4
+  WEIGHTS: imagenet
+  LEARNING_RATE: 0.01
+
+VGG19:
+  AUGMENTATION: True
+  IMAGE_SIZE: [224, 224, 3] # as per VGG 19 model
+  BATCH_SIZE: 32
+  INCLUDE_TOP: False
+  EPOCHS: 10
+  CLASSES: 4
+  WEIGHTS: imagenet
+  LEARNING_RATE: 0.01
+
+InceptionV3:
+  AUGMENTATION: True
+  IMAGE_SIZE: [299, 299, 3] # as per InceptionV3 model
+  BATCH_SIZE: 32
+  INCLUDE_TOP: False
+  EPOCHS: 10
+  CLASSES: 4
+  WEIGHTS: imagenet
+  LEARNING_RATE: 0.01
+
+Xception:
+  AUGMENTATION: True
+  IMAGE_SIZE: [299, 299, 3] # as per Xception model
+  BATCH_SIZE: 32
+  INCLUDE_TOP: False
+  EPOCHS: 10
+  CLASSES: 4
+  WEIGHTS: imagenet
+  LEARNING_RATE: 0.01
+
