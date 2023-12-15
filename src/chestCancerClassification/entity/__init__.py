@@ -22,6 +22,12 @@ class PrepareBaseModelConfig:
     all_model_params: dict
     params_classes: int
     params_learning_rate: int
+    updated_base_model_mobilenetv2: Path
+    base_model_mobilenetv2: Path
+    updated_base_model_mobilenet: Path
+    base_model_mobilenet: Path
+    updated_base_model_resnet: Path
+    base_model_resnet: Path
 
 @dataclass(frozen=True)
 class TrainingConfig:

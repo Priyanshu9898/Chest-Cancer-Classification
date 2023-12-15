@@ -19,7 +19,42 @@ class Prepare_Base_Model:
             weights=self.config.all_model_params.VGG19.WEIGHTS,
             input_shape=self.config.all_model_params.VGG19.IMAGE_SIZE,
         )
+    
+    def get_base_model_resnet(self):
+        self.model = tf.keras.applications.ResNet50(
+            include_top=self.config.all_model_params.RESNET.INCLUDE_TOP,
+            weights=self.config.all_model_params.RESNET.WEIGHTS,
+            input_shape=self.config.all_model_params.RESNET.IMAGE_SIZE,
+        )
+    
+    def get_base_model_mobilenet(self):
+        self.model = tf.keras.applications.MobileNet(
+            include_top=self.config.all_model_params.MOBILENET.INCLUDE_TOP,
+            weights=self.config.all_model_params.MOBILENET.WEIGHTS,
+            input_shape=self.config.all_model_params.MOBILENET.IMAGE_SIZE,
+        )
 
+    def get_base_model_mobilenetv2(self):
+        self.model = tf.keras.applications.MobileNetV2(
+            include_top=self.config.all_model_params.MOBILENETV2.INCLUDE_TOP,
+            weights=self.config.all_model_params.MOBILENETV2.WEIGHTS,
+            input_shape=self.config.all_model_params.MOBILENETV2.IMAGE_SIZE,
+        )
+    
+    def get_base_model_inceptionv3(self):
+        self.model = tf.keras.applications.InceptionV3(
+            include_top=self.config.all_model_params.InceptionV3.INCLUDE_TOP,
+            weights=self.config.all_model_params.InceptionV3.WEIGHTS,
+            input_shape=self.config.all_model_params.InceptionV3.IMAGE_SIZE,
+        )
+    
+    def get_base_model_xception(self):
+        self.model = tf.keras.applications.Xception(
+            include_top=self.config.all_model_params.Xception.INCLUDE_TOP,
+            weights=self.config.all_model_params.Xception.WEIGHTS,
+            input_shape=self.config.all_model_params.Xception.IMAGE_SIZE,
+        )
+    
     @staticmethod
     def _prepare_full_model(model, classes, freeze_all, freeze_till, learning_rate):
         if freeze_all:

@@ -39,6 +39,12 @@ class ConfigurationManager:
             updated_base_model_vgg16=Path(config.updated_base_model_vgg16),
             base_model_vgg19=Path(config.base_model_vgg19),
             updated_base_model_vgg19=Path(config.updated_base_model_vgg19),
+            base_model_resnet=Path(config.base_model_resnet),
+            updated_base_model_resnet=Path(config.updated_base_model_resnet),
+            base_model_mobilenet=Path(config.base_model_mobilenet),
+            updated_base_model_mobilenet=Path(config.updated_base_model_mobilenet),
+            base_model_mobilenetv2=Path(config.base_model_mobilenetv2),
+            updated_base_model_mobilenetv2=Path(config.updated_base_model_mobilenetv2),
             base_model_inceptionv3=Path(config.base_model_inceptionv3),
             updated_base_model_inceptionv3=Path(
                 config.updated_base_model_inceptionv3),
@@ -106,6 +112,39 @@ class ConfigurationManager:
             root_dir=Path(config.root_dir),
             trained_model_path=Path(config.trained_model_path_vgg19),
             updated_base_model_path=Path(prepare_base_model.updated_base_model_vgg19),
+            training_data=Path(training_data),
+            validation_data=Path(validation_data),
+            test_data=Path(test_data),
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE,
+            results_folder=Path(config.results_dir)
+        )
+
+        return training_config
+    
+    def get_training_config_resnet(self) -> TrainingConfig:
+        config = self.config.training
+        params = self.param.RESNET
+        prepare_base_model = self.config.prepare_base_model
+        
+        training_data = os.path.join(self.config.data_ingestion.unzip_data, "train")
+        validation_data = os.path.join(self.config.data_ingestion.unzip_data, "valid")
+        test_data = os.path.join(self.config.data_ingestion.unzip_data, "test")
+      
+        
+        create_directories([
+            Path(config.root_dir),
+            Path(config.results_dir)
+        ])
+        
+        # print("training_data", training_data)
+        
+        training_config = TrainingConfig(
+            root_dir=Path(config.root_dir),
+            trained_model_path=Path(config.trained_model_path_resnet),
+            updated_base_model_path=Path(prepare_base_model.updated_base_model_resnet),
             training_data=Path(training_data),
             validation_data=Path(validation_data),
             test_data=Path(test_data),

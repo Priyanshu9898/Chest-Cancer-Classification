@@ -34,3 +34,16 @@ class TrainingPipeline:
         training.train()
         
         logger.info("Training ended successfully for VGG19 model")
+        
+        
+        logger.info("Training start for RESNET model")
+        
+        training_config = config.get_training_config_resnet()
+        
+
+        logger.info("RESNET Training Config", training_config)
+        
+        training = Training(config=training_config, model_name = "RESNET")
+        training.train()
+        
+        logger.info("Training ended successfully for RESNET model")
