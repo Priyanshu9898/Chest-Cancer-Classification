@@ -14,6 +14,7 @@ import pandas as pd
 from chestCancerClassification import logger
 from sklearn.metrics import precision_recall_fscore_support
 import mlflow
+from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 
 
 class Training:
@@ -139,6 +140,11 @@ class Training:
 
         steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
         validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
+        
+         # Callbacks
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=0.00001, verbose=1)
+        early_stop = EarlyStopping(monitor='val_accuracy', patience=10, verbose=1, mode='max', restore_best_weights=True)
+
 
         with mlflow.start_run(run_name=self.model_name):
             # Log parameters
@@ -148,9 +154,12 @@ class Training:
 
             # Train model
             history = self.model.fit(
-                self.train_generator, epochs=self.config.params_epochs, 
-                steps_per_epoch=steps_per_epoch, validation_data=self.valid_generator, 
-                validation_steps=validation_steps
+                self.train_generator, 
+                epochs=self.config.params_epochs, 
+                steps_per_epoch=steps_per_epoch, 
+                validation_data=self.valid_generator, 
+                validation_steps=validation_steps,
+                callbacks=[reduce_lr, early_stop]
             )
 
             # Log training metrics
