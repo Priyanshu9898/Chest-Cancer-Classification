@@ -14,8 +14,8 @@ prepare_base_model:
   updated_base_model_vgg19 : artifacts/base_models/updated_vgg19.h5
   base_model_inceptionv3 : artifacts/base_models/inceptionv3.h5
   updated_base_model_inceptionv3 : artifacts/base_models/updated_inceptionv3.h5
-  base_model_exception : artifacts/base_models/exception.h5
-  updated_base_model_exception : artifacts/base_models/updated_exception.h5
+  base_model_xception : artifacts/base_models/xception.h5
+  updated_base_model_xception : artifacts/base_models/updated_xception.h5
   base_model_resnet : artifacts/base_models/resnet.h5
   updated_base_model_resnet : artifacts/base_models/updated_resnet.h5
   base_model_mobilenet : artifacts/base_models/mobilenet.h5
@@ -29,7 +29,7 @@ training:
   trained_model_path_vgg16 : artifacts/training/vgg16.h5
   trained_model_path_vgg19 : artifacts/training/vgg19.h5
   trained_model_path_inceptionv3 : artifacts/training/inceptionv3.h5
-  trained_model_path_exception : artifacts/training/exception.h5
+  trained_model_path_xception : artifacts/training/exception.h5
   trained_model_path_resnet : artifacts/training/resnet.h5
   trained_model_path_mobilenet : artifacts/training/mobilenet.h5
   trained_model_path_mobilenetv2 : artifacts/training/mobilenetv2.h5

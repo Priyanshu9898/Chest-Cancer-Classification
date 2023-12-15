@@ -47,3 +47,56 @@ class TrainingPipeline:
         training.train()
         
         logger.info("Training ended successfully for RESNET model")
+        
+        
+        logger.info("Training start for Inceptionv3 model")
+        
+        training_config = config.get_training_config_inceptionv3()
+        
+
+        logger.info("Inceptionv3 Training Config", training_config)
+        
+        training = Training(config=training_config, model_name = "Inceptionv3")
+        training.train()
+        
+        logger.info("Training ended successfully for Inceptionv3 model")
+        
+        
+        logger.info("Training start for Xception model")
+        
+        training_config = config.get_training_config_xception()
+        
+
+        logger.info("Xception Training Config", training_config)
+        
+        training = Training(config=training_config, model_name = "Xception")
+        training.train()
+        
+        logger.info("Training ended successfully for Xception model")
+        
+        
+        logger.info("Training start for Mobilenet model")
+        
+        training_config = config.get_training_config_mobilenet()
+        
+
+        logger.info("Mobilenet Training Config", training_config)
+        
+        training = Training(config=training_config, model_name = "Mobilenet")
+        training.train()
+        
+        logger.info("Training ended successfully for Mobilenet model")
+        
+        
+        
+        logger.info("Training start for MobilenetV2 model")
+        
+        training_config = config.get_training_config_mobilenetv2()
+        
+
+        logger.info("MobilenetV2 Training Config", training_config)
+        
+        training = Training(config=training_config, model_name = "MobilenetV2")
+        training.train()
+        
+        logger.info("Training ended successfully for MobilenetV2 model")

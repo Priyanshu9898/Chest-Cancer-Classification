@@ -43,9 +43,9 @@ class Prepare_Base_Model:
     
     def get_base_model_inceptionv3(self):
         self.model = tf.keras.applications.InceptionV3(
-            include_top=self.config.all_model_params.InceptionV3.INCLUDE_TOP,
-            weights=self.config.all_model_params.InceptionV3.WEIGHTS,
-            input_shape=self.config.all_model_params.InceptionV3.IMAGE_SIZE,
+            include_top=self.config.all_model_params.INCEPTIONV3.INCLUDE_TOP,
+            weights=self.config.all_model_params.INCEPTIONV3.WEIGHTS,
+            input_shape=self.config.all_model_params.INCEPTIONV3.IMAGE_SIZE,
         )
     
     def get_base_model_xception(self):

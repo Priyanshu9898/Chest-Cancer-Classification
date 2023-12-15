@@ -17,8 +17,8 @@ class PrepareBaseModelConfig:
     updated_base_model_vgg19: Path
     base_model_inceptionv3: Path
     updated_base_model_inceptionv3: Path
-    base_model_exception: Path
-    updated_base_model_exception: Path
+    base_model_xception: Path
+    updated_base_model_xception: Path
     all_model_params: dict
     params_classes: int
     params_learning_rate: int

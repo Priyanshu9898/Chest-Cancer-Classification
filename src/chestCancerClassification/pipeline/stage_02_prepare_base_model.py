@@ -42,7 +42,7 @@ class PrepareModelPipeline:
         logger.info("Preparing base model Xception")
         prepare_base_model.get_base_model_xception()
         prepare_base_model.update_base_model(
-            prepare_base_model_config.updated_base_model_exception)
+            prepare_base_model_config.updated_base_model_xception)
 
         logger.info("base model Xception updated successfully")
 
