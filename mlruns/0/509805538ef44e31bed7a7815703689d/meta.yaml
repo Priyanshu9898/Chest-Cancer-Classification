@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/Chest-Cancer-Classification/mlruns/0/509805538ef44e31bed7a7815703689d/artifacts
+end_time: 1702708567184
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 509805538ef44e31bed7a7815703689d
+run_name: VGG16
+run_uuid: 509805538ef44e31bed7a7815703689d
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1702708384714
+status: 3
+tags: []
+user_id: priya

@@ -15,7 +15,7 @@ from chestCancerClassification import logger
 from sklearn.metrics import precision_recall_fscore_support
 import mlflow
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
-
+import mlflow.keras
 
 class Training:
     def __init__(self, config: TrainingConfig, model_name: str):
