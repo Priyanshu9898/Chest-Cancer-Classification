@@ -6,8 +6,9 @@ __pycache__/
 /artifacts/data_ingestion
 /artifacts/base_models
 /artifacts/training
-
-
+/hyperparam_tuning
+/mlruns
+.dvc
 # C extensions
 *.so
 

@@ -18,6 +18,8 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 import mlflow.keras
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from keras.models import Sequential
+import kerastuner as kt
+from tensorflow.keras.optimizers import Adam
 
 class Training:
     def __init__(self, config: TrainingConfig, model_name: str):
@@ -203,6 +205,88 @@ class Training:
             self.plot_training_history(history)
 
             self.evaluate_and_report(history)
+    
+    def build_tunable_cnn_model(self, hp):
+        """
+        Build a CNN model with tunable hyperparameters, including the number of layers.
+        """
+        input_shape = self.config.params_image_size
+        num_classes = 4  
+
+        model = Sequential()
+
+        # Tuning the number of convolutional layers
+        for i in range(hp.Int('num_conv_layers', 1, 5)): 
+            model.add(Conv2D(hp.Int(f'conv_{i+1}_filter', min_value=32, max_value=256, step=32),
+                             (3, 3), activation='relu', input_shape=input_shape if i == 0 else None))
+            model.add(MaxPooling2D((2, 2)))
+        
+        model.add(Flatten())
+
+        # Dense layer
+        model.add(Dense(hp.Int('dense_units', min_value=64, max_value=256, step=64), activation='relu'))
+        model.add(Dropout(hp.Float('dropout', min_value=0.0, max_value=0.5, step=0.1)))
+        model.add(Dense(num_classes, activation='softmax'))
+        
+        # Compile model
+        model.compile(optimizer=Adam(hp.Float('learning_rate', min_value=1e-4, max_value=1e-2, sampling='LOG')),
+                      loss='categorical_crossentropy', 
+                      metrics=['accuracy'])
+
+        self.model = model
+        
+        model.summary()
+        
+        return model
+
+    def hyperparameter_tuning(self):
+        tuner = kt.Hyperband(
+            self.build_tunable_cnn_model,
+            objective='val_accuracy',
+            max_epochs=10,
+            factor=3,
+            hyperband_iterations=2,
+            directory='hyperparam_tuning',
+            project_name='cnn_tuning'
+        )
+
+        self.setup_data_generators()
+
+        steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
+        validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
+
+        tuner.search(self.train_generator,
+                     steps_per_epoch=steps_per_epoch,
+                     validation_data=self.valid_generator,
+                     validation_steps=validation_steps,
+                     epochs=10)
+
+        best_model = tuner.get_best_models(num_models=1)[0]
+        best_hyperparameters = tuner.get_best_hyperparameters(num_trials=1)[0]
+
+        return best_model, best_hyperparameters
+
+    def train_and_evaluate_best_model(self, best_model):
+        self.setup_data_generators()
+
+        steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
+        validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
+
+        # Training the best model
+        history = best_model.fit(
+            self.train_generator,
+            epochs=self.config.params_epochs,
+            steps_per_epoch=steps_per_epoch,
+            validation_data=self.valid_generator,
+            validation_steps=validation_steps
+        )
+
+        # Save and plot training history
+        self.save_model(path="artifacts/training/cnn_ht.h5", model=best_model)
+        self.plot_training_history(history)
+
+        # Evaluate the model
+        self.evaluate_and_report(history)
 
     def train(self):
         # create_directories([self.config.results_folder])

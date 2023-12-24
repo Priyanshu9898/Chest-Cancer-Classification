@@ -23,6 +23,18 @@ class TrainingPipeline:
 
         logger.info("Training ended successfully for CNN model")
         
+        logger.info("Training start for CNN Hyperparameter Tuning model")
+
+        training_config = config.get_training_config_cnn()
+
+        # print(training_config)
+        training = Training(config=training_config, model_name="CNN Hyperparameter Tuning")
+        # training.build_tunable_cnn_model()
+        best_model, best_hyperparameters = training.hyperparameter_tuning()
+        training.train_and_evaluate_best_model(best_model)
+
+        logger.info("Training ended successfully for CNN Hyperparameter Tuning model")
+        
 
         logger.info("Training start for VGG16 model")
 
