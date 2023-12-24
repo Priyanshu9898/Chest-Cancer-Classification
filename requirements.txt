@@ -18,4 +18,8 @@ notebook
 dvc
 fastapi
 keras-tuner
+scikit-learn
+scikit-image
+opencv-python
+shap
 -e .
