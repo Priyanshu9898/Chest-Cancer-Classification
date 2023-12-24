@@ -12,16 +12,27 @@ class TrainingPipeline:
 
     def main(self):
         config = ConfigurationManager()
+        
+        logger.info("Training start for CNN model")
 
-        logger.info("Training start for VGG16 model")
-
-        training_config = config.get_training_config_vgg16()
+        training_config = config.get_training_config_cnn()
 
         # print(training_config)
-        training = Training(config=training_config, model_name="VGG16")
-        training.train()
+        training = Training(config=training_config, model_name="CNN")
+        training.train_cnn_model()
 
-        logger.info("Training ended successfully for VGG16 model")
+        logger.info("Training ended successfully for CNN model")
+        
+
+        # logger.info("Training start for VGG16 model")
+
+        # training_config = config.get_training_config_vgg16()
+
+        # # print(training_config)
+        # training = Training(config=training_config, model_name="VGG16")
+        # training.train()
+
+        # logger.info("Training ended successfully for VGG16 model")
 
         # logger.info("Training start for VGG19 model")
 

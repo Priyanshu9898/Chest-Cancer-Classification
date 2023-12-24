@@ -1,6 +1,6 @@
 from chestCancerClassification.constants import *
 from chestCancerClassification.utils.common import read_yaml, create_directories
-from chestCancerClassification.entity import DataIngestionConfig, PrepareBaseModelConfig, TrainingConfig
+from chestCancerClassification.entity import DataIngestionConfig, PrepareBaseModelConfig, TrainingConfig, TrainingCNNConfig
 import os
 
 
@@ -293,6 +293,37 @@ class ConfigurationManager:
             trained_model_path=Path(config.trained_model_path_mobilenetv2),
             updated_base_model_path=Path(
                 prepare_base_model.updated_base_model_mobilenetv2),
+            training_data=Path(training_data),
+            validation_data=Path(validation_data),
+            test_data=Path(test_data),
+            params_epochs=params.EPOCHS,
+            params_batch_size=params.BATCH_SIZE,
+            params_is_augmentation=params.AUGMENTATION,
+            params_image_size=params.IMAGE_SIZE,
+            results_folder=Path(config.results_dir)
+        )
+
+        return training_config
+
+    def get_training_config_cnn(self) -> TrainingCNNConfig:
+        config = self.config.training
+        params = self.param.CNN
+
+        training_data = os.path.join(
+            self.config.data_ingestion.unzip_data, "train")
+        validation_data = os.path.join(
+            self.config.data_ingestion.unzip_data, "valid")
+        test_data = os.path.join(self.config.data_ingestion.unzip_data, "test")
+
+        create_directories([
+            Path(config.root_dir),
+            Path(config.results_dir)
+        ])
+
+        # print("training_data", training_data)
+
+        training_config = TrainingCNNConfig(
+            root_dir=Path(config.root_dir),
             training_data=Path(training_data),
             validation_data=Path(validation_data),
             test_data=Path(test_data),

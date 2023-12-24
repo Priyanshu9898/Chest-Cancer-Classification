@@ -16,6 +16,8 @@ from sklearn.metrics import precision_recall_fscore_support
 import mlflow
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping
 import mlflow.keras
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.models import Sequential
 
 class Training:
     def __init__(self, config: TrainingConfig, model_name: str):
@@ -27,7 +29,8 @@ class Training:
         self.model_name = model_name
 
     def get_base_model(self):
-        self.model = tf.keras.models.load_model(self.config.updated_base_model_path)
+        self.model = tf.keras.models.load_model(
+            self.config.updated_base_model_path)
 
     def setup_data_generators(self):
         datagenerator_kwargs = dict(rescale=1./255)
@@ -39,7 +42,7 @@ class Training:
 
         # Train generator with augmentation
         train_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
-            rotation_range=40, horizontal_flip=True, width_shift_range=0.2, 
+            rotation_range=20, horizontal_flip=True, width_shift_range=0.2,
             height_shift_range=0.2, shear_range=0.2, zoom_range=0.2,
             **datagenerator_kwargs
         ) if self.config.params_is_augmentation else tf.keras.preprocessing.image.ImageDataGenerator(**datagenerator_kwargs)
@@ -49,13 +52,15 @@ class Training:
         )
 
         # Validation generator
-        valid_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(**datagenerator_kwargs)
+        valid_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
+            **datagenerator_kwargs)
         self.valid_generator = valid_datagenerator.flow_from_directory(
             directory=self.config.validation_data, shuffle=False, **dataflow_kwargs
         )
 
         # Test generator
-        test_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(**datagenerator_kwargs)
+        test_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
+            **datagenerator_kwargs)
         self.test_generator = test_datagenerator.flow_from_directory(
             directory=self.config.test_data, shuffle=False, **dataflow_kwargs
         )
@@ -84,7 +89,8 @@ class Training:
         plt.title('Training and Validation Loss')
         plt.legend()
 
-        plt.savefig(os.path.join(self.config.results_folder, f'{self.model_name}_training_history.png'))
+        plt.savefig(os.path.join(self.config.results_folder,
+                    f'{self.model_name}_training_history.png'))
         # plt.show()
 
     # def evaluate_and_report(self):
@@ -120,17 +126,83 @@ class Training:
         plt.tight_layout()
         plt.ylabel('True label')
         plt.xlabel('Predicted label')
-        plt.savefig(os.path.join(self.config.results_folder, f'confusion_matrix_{self.model_name}.png'))
-        # plt.show() 
+        plt.savefig(os.path.join(self.config.results_folder,
+                    f'confusion_matrix_{self.model_name}.png'))
+        # plt.show()
 
     def append_to_csv(self, accuracy, precision, recall, f1_score):
         results_file = os.path.join(self.config.results_folder, 'results.csv')
-        new_row = {'Model': self.model_name, 'Accuracy': accuracy, 'Precision': precision, 'Recall': recall, 'F1-Score': f1_score}
+        new_row = {'Model': self.model_name, 'Accuracy': accuracy,
+                   'Precision': precision, 'Recall': recall, 'F1-Score': f1_score}
 
         if not os.path.isfile(results_file):
             pd.DataFrame([new_row]).to_csv(results_file, index=False)
         else:
-            pd.DataFrame([new_row]).to_csv(results_file, mode='a', header=False, index=False)
+            pd.DataFrame([new_row]).to_csv(
+                results_file, mode='a', header=False, index=False)
+    
+    def train_cnn_model(self):
+        """
+        Build a simple CNN model.
+        """
+        input_shape = self.config.params_image_size
+        
+        num_classes = 4
+        
+        model = Sequential()
+        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(MaxPooling2D((2, 2)))
+        model.add(Conv2D(128, (3, 3), activation='relu'))
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(num_classes, activation='softmax'))
+        
+        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+        model.summary()
+        
+        
+        self.setup_data_generators()
+        
+        steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
+        validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
+
+        # Callbacks
+        reduce_lr = ReduceLROnPlateau(
+            monitor='val_loss', factor=0.1, patience=5, min_lr=0.00001, verbose=1)
+        early_stop = EarlyStopping(
+            monitor='val_accuracy', patience=10, verbose=1, mode='max', restore_best_weights=True)
+
+        with mlflow.start_run(run_name=self.model_name):
+            # Log parameters
+            mlflow.log_param("image_size", self.config.params_image_size)
+            mlflow.log_param("batch_size", self.config.params_batch_size)
+            mlflow.log_param("epochs", self.config.params_epochs)
+
+            # Train model
+            history = model.fit(
+                self.train_generator,
+                epochs=self.config.params_epochs,
+                steps_per_epoch=steps_per_epoch,
+                validation_data=self.valid_generator,
+                validation_steps=validation_steps,
+                callbacks=[reduce_lr, early_stop]
+            )
+            
+            self.model = model
+
+            # Log training metrics
+            mlflow.log_metric("train_accuracy", max(
+                history.history['accuracy']))
+            mlflow.log_metric("train_loss", min(history.history['loss']))
+
+            self.save_model(
+                path="artifacts/training/cnn.h5", model=model)
+            self.plot_training_history(history)
+
+            self.evaluate_and_report(history)
 
     def train(self):
         # create_directories([self.config.results_folder])
@@ -140,11 +212,12 @@ class Training:
 
         steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
         validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
-        
-         # Callbacks
-        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=5, min_lr=0.00001, verbose=1)
-        early_stop = EarlyStopping(monitor='val_accuracy', patience=10, verbose=1, mode='max', restore_best_weights=True)
 
+        # Callbacks
+        reduce_lr = ReduceLROnPlateau(
+            monitor='val_loss', factor=0.1, patience=5, min_lr=0.00001, verbose=1)
+        early_stop = EarlyStopping(
+            monitor='val_accuracy', patience=10, verbose=1, mode='max', restore_best_weights=True)
 
         with mlflow.start_run(run_name=self.model_name):
             # Log parameters
@@ -154,29 +227,33 @@ class Training:
 
             # Train model
             history = self.model.fit(
-                self.train_generator, 
-                epochs=self.config.params_epochs, 
-                steps_per_epoch=steps_per_epoch, 
-                validation_data=self.valid_generator, 
+                self.train_generator,
+                epochs=self.config.params_epochs,
+                steps_per_epoch=steps_per_epoch,
+                validation_data=self.valid_generator,
                 validation_steps=validation_steps,
                 callbacks=[reduce_lr, early_stop]
             )
 
             # Log training metrics
-            mlflow.log_metric("train_accuracy", max(history.history['accuracy']))
+            mlflow.log_metric("train_accuracy", max(
+                history.history['accuracy']))
             mlflow.log_metric("train_loss", min(history.history['loss']))
 
-            self.save_model(path=self.config.trained_model_path, model=self.model)
+            self.save_model(
+                path=self.config.trained_model_path, model=self.model)
             self.plot_training_history(history)
 
             self.evaluate_and_report(history)
 
     def evaluate_and_report(self, history):
         test_loss, test_accuracy = self.model.evaluate(self.test_generator)
-        predictions = np.argmax(self.model.predict(self.test_generator), axis=1)
+        predictions = np.argmax(
+            self.model.predict(self.test_generator), axis=1)
         true_classes = self.test_generator.classes
 
-        precision, recall, f1_score, _ = precision_recall_fscore_support(true_classes, predictions, average='weighted')
+        precision, recall, f1_score, _ = precision_recall_fscore_support(
+            true_classes, predictions, average='weighted')
 
         # Log test metrics
         mlflow.log_metric("test_accuracy", test_accuracy)
@@ -185,10 +262,10 @@ class Training:
         mlflow.log_metric("recall", recall)
         mlflow.log_metric("f1_score", f1_score)
 
-       
         mlflow.keras.log_model(self.model, "model")
 
         cm = confusion_matrix(true_classes, predictions)
-        self.plot_confusion_matrix(cm, list(self.test_generator.class_indices.keys()))
+        self.plot_confusion_matrix(
+            cm, list(self.test_generator.class_indices.keys()))
 
         self.append_to_csv(test_accuracy, precision, recall, f1_score)

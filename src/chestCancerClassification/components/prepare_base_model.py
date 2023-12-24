@@ -2,6 +2,7 @@ import tensorflow as tf
 from pathlib import Path
 from chestCancerClassification.entity import PrepareBaseModelConfig
 
+
 class Prepare_Base_Model:
     def __init__(self, config: PrepareBaseModelConfig):
         self.config = config
@@ -54,6 +55,8 @@ class Prepare_Base_Model:
             weights=self.config.all_model_params.Xception.WEIGHTS,
             input_shape=self.config.all_model_params.Xception.IMAGE_SIZE,
         )
+    
+    
     
     @staticmethod
     def _prepare_full_model(model, classes, freeze_all, freeze_till, learning_rate):
