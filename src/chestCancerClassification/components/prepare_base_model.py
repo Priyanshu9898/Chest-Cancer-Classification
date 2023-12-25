@@ -1,7 +1,7 @@
 import tensorflow as tf
 from pathlib import Path
 from chestCancerClassification.entity import PrepareBaseModelConfig
-
+from tensorflow.keras.layers import BatchNormalization, MaxPooling2D, Dropout, Flatten, Dense
 
 class Prepare_Base_Model:
     def __init__(self, config: PrepareBaseModelConfig):
@@ -66,12 +66,25 @@ class Prepare_Base_Model:
         elif (freeze_till is not None) and (freeze_till > 0):
             for layer in model.layers[:-freeze_till]:
                 model.trainable = False
+                
+        # Adding new layers
+        x = BatchNormalization()(model.output)
+        x = MaxPooling2D(pool_size=(2, 2))(x)
+        # x = Dropout(0.3)(x)
+        x = Flatten()(x)
+        x = Dense(1024, activation='relu')(x)
+        x = Dropout(0.3)(x)
+        x = Dense(512, activation='relu')(x)
+        x = Dropout(0.3)(x)
+        x = Dense(256, activation='relu')(x)
+        x = Dropout(0.3)(x)
+        prediction = tf.keras.layers.Dense(classes, activation='softmax')(x)
 
-        flatten_in = tf.keras.layers.Flatten()(model.output)
-        prediction = tf.keras.layers.Dense(
-            units=classes,
-            activation="softmax"
-        )(flatten_in)
+        # flatten_in = tf.keras.layers.Flatten()(model.output)
+        # prediction = tf.keras.layers.Dense(
+        #     units=classes,
+        #     activation="softmax"
+        # )(flatten_in)
 
         full_model = tf.keras.models.Model(
             inputs=model.input,

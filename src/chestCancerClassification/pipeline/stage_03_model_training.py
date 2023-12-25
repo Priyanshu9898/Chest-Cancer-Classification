@@ -17,23 +17,23 @@ class TrainingPipeline:
 
         training_config = config.get_training_config_cnn()
 
-        # print(training_config)
+        print(training_config)
         training = Training(config=training_config, model_name="CNN")
         training.train_cnn_model()
 
         logger.info("Training ended successfully for CNN model")
         
-        logger.info("Training start for CNN Hyperparameter Tuning model")
+        # logger.info("Training start for CNN Hyperparameter Tuning model")
 
-        training_config = config.get_training_config_cnn()
+        # training_config = config.get_training_config_cnn()
 
-        # print(training_config)
-        training = Training(config=training_config, model_name="CNN Hyperparameter Tuning")
-        # training.build_tunable_cnn_model()
-        best_model, best_hyperparameters = training.hyperparameter_tuning()
-        training.train_and_evaluate_best_model(best_model)
+        # # print(training_config)
+        # training = Training(config=training_config, model_name="CNN Hyperparameter Tuning")
+        # # training.build_tunable_cnn_model()
+        # best_model, best_hyperparameters = training.hyperparameter_tuning()
+        # training.train_and_evaluate_best_model(best_model)
 
-        logger.info("Training ended successfully for CNN Hyperparameter Tuning model")
+        # logger.info("Training ended successfully for CNN Hyperparameter Tuning model")
         
 
         logger.info("Training start for VGG16 model")
@@ -58,60 +58,60 @@ class TrainingPipeline:
 
         logger.info("Training ended successfully for VGG19 model")
 
-        logger.info("Training start for RESNET model")
+        # logger.info("Training start for RESNET model")
 
-        training_config = config.get_training_config_resnet()
+        # training_config = config.get_training_config_resnet()
 
-        logger.info("RESNET Training Config", training_config)
+        # logger.info("RESNET Training Config", training_config)
 
-        training = Training(config=training_config, model_name="RESNET")
-        training.train()
+        # training = Training(config=training_config, model_name="RESNET")
+        # training.train()
 
-        logger.info("Training ended successfully for RESNET model")
+        # logger.info("Training ended successfully for RESNET model")
 
-        logger.info("Training start for Inceptionv3 model")
+        # logger.info("Training start for Inceptionv3 model")
 
-        training_config = config.get_training_config_inceptionv3()
+        # training_config = config.get_training_config_inceptionv3()
 
-        logger.info("Inceptionv3 Training Config", training_config)
+        # logger.info("Inceptionv3 Training Config", training_config)
 
-        training = Training(config=training_config, model_name="Inceptionv3")
-        training.train()
+        # training = Training(config=training_config, model_name="Inceptionv3")
+        # training.train()
 
-        logger.info("Training ended successfully for Inceptionv3 model")
+        # logger.info("Training ended successfully for Inceptionv3 model")
 
-        logger.info("Training start for Xception model")
+        # logger.info("Training start for Xception model")
 
-        training_config = config.get_training_config_xception()
+        # training_config = config.get_training_config_xception()
 
-        logger.info("Xception Training Config", training_config)
+        # logger.info("Xception Training Config", training_config)
 
-        training = Training(config=training_config, model_name="Xception")
-        training.train()
+        # training = Training(config=training_config, model_name="Xception")
+        # training.train()
 
-        logger.info("Training ended successfully for Xception model")
+        # logger.info("Training ended successfully for Xception model")
 
-        logger.info("Training start for Mobilenet model")
+        # logger.info("Training start for Mobilenet model")
 
-        training_config = config.get_training_config_mobilenet()
+        # training_config = config.get_training_config_mobilenet()
 
-        logger.info("Mobilenet Training Config", training_config)
+        # logger.info("Mobilenet Training Config", training_config)
 
-        training = Training(config=training_config, model_name="Mobilenet")
-        training.train()
+        # training = Training(config=training_config, model_name="Mobilenet")
+        # training.train()
 
-        logger.info("Training ended successfully for Mobilenet model")
+        # logger.info("Training ended successfully for Mobilenet model")
 
-        logger.info("Training start for MobilenetV2 model")
+        # logger.info("Training start for MobilenetV2 model")
 
-        training_config = config.get_training_config_mobilenetv2()
+        # training_config = config.get_training_config_mobilenetv2()
 
-        logger.info("MobilenetV2 Training Config", training_config)
+        # logger.info("MobilenetV2 Training Config", training_config)
 
-        training = Training(config=training_config, model_name="MobilenetV2")
-        training.train()
+        # training = Training(config=training_config, model_name="MobilenetV2")
+        # training.train()
 
-        logger.info("Training ended successfully for MobilenetV2 model")
+        # logger.info("Training ended successfully for MobilenetV2 model")
 
 
 if __name__ == '__main__':

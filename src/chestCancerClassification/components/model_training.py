@@ -21,6 +21,7 @@ from keras.models import Sequential
 import kerastuner as kt
 from tensorflow.keras.optimizers import Adam
 
+
 class Training:
     def __init__(self, config: TrainingConfig, model_name: str):
         self.config = config
@@ -44,8 +45,14 @@ class Training:
 
         # Train generator with augmentation
         train_datagenerator = tf.keras.preprocessing.image.ImageDataGenerator(
-            rotation_range=20, horizontal_flip=True, width_shift_range=0.2,
-            height_shift_range=0.2, shear_range=0.2, zoom_range=0.2,
+            rotation_range=10,
+            width_shift_range=0.2,
+            height_shift_range=0.2,
+            shear_range=0.2,
+            zoom_range=0.2,
+            horizontal_flip=True,
+            vertical_flip=False,
+            dtype='float32',
             **datagenerator_kwargs
         ) if self.config.params_is_augmentation else tf.keras.preprocessing.image.ImageDataGenerator(**datagenerator_kwargs)
 
@@ -142,17 +149,17 @@ class Training:
         else:
             pd.DataFrame([new_row]).to_csv(
                 results_file, mode='a', header=False, index=False)
-    
+
     def train_cnn_model(self):
         """
         Build a simple CNN model.
         """
         input_shape = self.config.params_image_size
-        
+
         num_classes = 4
-        
+
         model = Sequential()
-        model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
+        model.add(Conv2D(256, (3, 3), activation='relu', input_shape=input_shape))
         model.add(MaxPooling2D((2, 2)))
         model.add(Conv2D(64, (3, 3), activation='relu'))
         model.add(MaxPooling2D((2, 2)))
@@ -161,13 +168,13 @@ class Training:
         model.add(Dense(128, activation='relu'))
         model.add(Dropout(0.5))
         model.add(Dense(num_classes, activation='softmax'))
-        
-        model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+        model.compile(optimizer='adam',
+                      loss='categorical_crossentropy', metrics=['accuracy'])
         model.summary()
-        
-        
+
         self.setup_data_generators()
-        
+
         steps_per_epoch = self.train_generator.samples // self.train_generator.batch_size
         validation_steps = self.valid_generator.samples // self.valid_generator.batch_size
 
@@ -192,7 +199,7 @@ class Training:
                 validation_steps=validation_steps,
                 callbacks=[reduce_lr, early_stop]
             )
-            
+
             self.model = model
 
             # Log training metrics
@@ -205,38 +212,40 @@ class Training:
             self.plot_training_history(history)
 
             self.evaluate_and_report(history)
-    
+
     def build_tunable_cnn_model(self, hp):
         """
         Build a CNN model with tunable hyperparameters, including the number of layers.
         """
         input_shape = self.config.params_image_size
-        num_classes = 4  
+        num_classes = 4
 
         model = Sequential()
 
         # Tuning the number of convolutional layers
-        for i in range(hp.Int('num_conv_layers', 1, 5)): 
+        for i in range(hp.Int('num_conv_layers', 1, 5)):
             model.add(Conv2D(hp.Int(f'conv_{i+1}_filter', min_value=32, max_value=256, step=32),
                              (3, 3), activation='relu', input_shape=input_shape if i == 0 else None))
             model.add(MaxPooling2D((2, 2)))
-        
+
         model.add(Flatten())
 
         # Dense layer
-        model.add(Dense(hp.Int('dense_units', min_value=64, max_value=256, step=64), activation='relu'))
-        model.add(Dropout(hp.Float('dropout', min_value=0.0, max_value=0.5, step=0.1)))
+        model.add(Dense(hp.Int('dense_units', min_value=64,
+                  max_value=256, step=64), activation='relu'))
+        model.add(
+            Dropout(hp.Float('dropout', min_value=0.0, max_value=0.5, step=0.1)))
         model.add(Dense(num_classes, activation='softmax'))
-        
+
         # Compile model
         model.compile(optimizer=Adam(hp.Float('learning_rate', min_value=1e-4, max_value=1e-2, sampling='LOG')),
-                      loss='categorical_crossentropy', 
+                      loss='categorical_crossentropy',
                       metrics=['accuracy'])
 
         self.model = model
-        
+
         model.summary()
-        
+
         return model
 
     def hyperparameter_tuning(self):
