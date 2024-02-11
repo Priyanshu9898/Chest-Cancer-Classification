@@ -16,10 +16,15 @@ tqdm
 ensure==1.0.2
 notebook
 dvc
-fastapi
 keras-tuner
 scikit-learn
 scikit-image
 opencv-python
-shap
+joblib
+Flask
+Flask-Cors
+torchvision
+torch
+timm
+gunicorn
 -e .
