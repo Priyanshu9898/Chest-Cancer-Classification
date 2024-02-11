@@ -20,7 +20,8 @@ allowed_origins = ['https://meta-doctor.vercel.app', 'https://meta-doctor-git-ma
 def load_model(model_name, num_classes, device):
     model = timm.create_model(
         model_name, pretrained=False, num_classes=num_classes)
-    model_path = 'best_model/efficientvit_m2_kidney_disease_classifier.pth'
+
+    model_path = 'best_model/mobilevitv2_100.pth'
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.to(device)
     model.eval()
